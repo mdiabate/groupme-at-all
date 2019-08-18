@@ -1,7 +1,9 @@
 var http = require("http");
 setInterval(function() {
-    http.get("https://sgp19.herokuapp.com/")
+    http.get("https://sgp19.herokuapp.com/");
     http.get("https://lasgidi.herokuapp.com/");
+    http.get("https://africangreeks.herokuapp.com/");
+    http.get("https://africanfamgreek.herokuapp.com/");
     //http.get("https://cancun-dg.herokuapp.com/");
     http.get("https://akisan.herokuapp.com/");
     http.get("https://colombia-confirmed.herokuapp.com/"); 
