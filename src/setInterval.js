@@ -10,4 +10,4 @@ setInterval(function() {
     //http.get("http://thawing-beach-87774.herokuapp.com"); -- HAYWIRE
 }, 900000); // every 15 minutes (300000)
 
-setInterval(function(){http.get("http://dgpanama20.herokuapp.com/");}, 1200000);
+setInterval(function(){http.get("http://dgpanama20.herokuapp.com/")}, 1200000);
