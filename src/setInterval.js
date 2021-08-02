@@ -14,6 +14,6 @@ var http = require("http");
 setInterval(function(){http.get("http://dgcartagena2021.herokuapp.com/")}, 1800000);
 setInterval(function(){http.get("https://yachtnik.herokuapp.com/")}, 1800000);
 setInterval(function(){http.get("https://sgp19.herokuapp.com/")}, 1800000);
-
+setInterval(function(){http.get("https://thecaptainyachtweek.herokuapp.com/")},1800000);
 //setInterval(function(){http.get("http://dglaborday2020.herokuapp.com//")}, 1800000);
 
