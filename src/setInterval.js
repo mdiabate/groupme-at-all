@@ -14,7 +14,7 @@ setInterval(function(){http.get("http://lasgiditwo.herokuapp.com/")}, 1800000);
 //setInterval(function(){http.get("http://dgcartagena2021.herokuapp.com/")}, 1800000);
 //setInterval(function(){http.get("https://yachtnik.herokuapp.com/")}, 1800000);
 setInterval(function(){http.get("https://sgp19.herokuapp.com/")}, 1800000);
-//setInterval(function(){http.get("https://thecaptainyachtweek.herokuapp.com/")},1800000);
+setInterval(function(){http.get("https://africanfamilly.herokuapp.com/")},1800000);
 setInterval(function(){http.get("https://curacao21.herokuapp.com/.herokuapp.com/")},1800000);
 setInterval(function(){http.get("http://afrogreeks.herokuapp.com//")}, 1800000);
 
