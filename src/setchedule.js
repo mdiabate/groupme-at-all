@@ -1,3 +1,20 @@
+const https = require("https");
+
+// Bot configs read in from environment
+const room_id = process.env.HUBOT_GROUPME_ROOM_ID;
+const bot_id = process.env.HUBOT_GROUPME_BOT_ID;
+const token = process.env.HUBOT_GROUPME_TOKEN;
+
+if (!room_id || !bot_id || !token) {
+  console.error(
+    "@all ERROR: Unable to read full environment. " +
+    "Did you configure environment variables correctly?" +
+    "\n- HUBOT_GROUPME_ROOM_ID" +
+    "\n- HUBOT_GROUPME_BOT_ID" +
+    "\n- HUBOT_GROUPME_TOKEN"
+  );
+  process.exit(1);
+
 class Bot {
   constructor(robot) {
     this.robot = robot;
@@ -96,6 +113,8 @@ class Bot {
     }, 1000 * 60);
   }
 }
+
+
 
 module.exports = robot => {
   const bot = new Bot(robot);
