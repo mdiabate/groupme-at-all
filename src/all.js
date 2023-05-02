@@ -1,100 +1,209 @@
 const https = require("https");
-const express = require('express');
-const bodyParser = require('body-parser');
-const moment = require('moment');
-const schedule = require('node-schedule');
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-// Body parser middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
 
 // Bot configs read in from environment
 const room_id = process.env.HUBOT_GROUPME_ROOM_ID;
 const bot_id = process.env.HUBOT_GROUPME_BOT_ID;
 const token = process.env.HUBOT_GROUPME_TOKEN;
 
-// Mention everyone in the group
-app.post('/all', (req, res) => {
-  const message = req.body.text;
-  const payload = {
-    bot_id: BOT_ID,
-    text: `@all ${message}`,
-  };
-  sendGroupMeMessage(payload);
-  res.status(200).end();
-});
-
-// Give the schedule of the day
-app.post('/schedule', (req, res) => {
-  const schedule = getSchedule();
-  const payload = {
-    bot_id: BOT_ID,
-    text: schedule,
-  };
-  sendGroupMeMessage(payload);
-  res.status(200).end();
-});
-
-// Welcome new member with a message
-app.post('/botJoined', (req, res) => {
-  const newMember = req.body.name;
-  const payload = {
-    bot_id: BOT_ID,
-    text: `Welcome to the group, ${newMember}!`,
-  };
-  sendGroupMeMessage(payload);
-  res.status(200).end();
-});
-
-// Schedule task to alert everyone at a specific time
-const alertJob = schedule.scheduleJob('0 9 * * *', () => {
-  const payload = {
-    bot_id: BOT_ID,
-    text: 'Good morning, everyone! Time to wake up!',
-  };
-  sendGroupMeMessage(payload);
-});
-
-// Send a message to the GroupMe API
-function sendGroupMeMessage(payload) {
-  const data = JSON.stringify(payload);
-  const options = {
-    hostname: 'api.groupme.com',
-    port: 80,
-    path: '/v3/bots/post',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': data.length,
-      'X-Access-Token': ACCESS_TOKEN,
-    },
-  };
-  const req = http.request(options, (res) => {});
-  req.on('error', (error) => {
-    console.error(error);
-  });
-  req.write(data);
-  req.end();
+if (!room_id || !bot_id || !token) {
+  console.error(
+    `@all ERROR: Unable to read full environment.
+    Did you configure environment variables correctly?
+    - HUBOT_GROUPME_ROOM_ID
+    - HUBOT_GROUPME_BOT_ID
+    - HUBOT_GROUPME_TOKEN`
+  );
+  process.exit(1);
 }
 
-// Get the schedule for the day
-function getSchedule() {
-  const today = moment().format('MMMM Do YYYY');
-  const schedule = `
-    Good morning, everyone! Here's the schedule for ${today}:
-    9:00am - Morning meeting
-    10:00am - Project update
-    11:00am - Break
-    12:00pm - Lunch
-    1:00pm - Client meeting
-    2:00pm - Coding session
-    3:00pm - Wrap up
-  `;
-  return schedule;
+class AllBot {
+  constructor(robot) {
+    this.robot = robot;
+    this.blacklist = [];
+
+    // Load the blacklist as soon as we can
+    this.robot.brain.once("loaded", this.loadBlacklist.bind(this));
+  }
+
+  saveBlacklist() {
+    console.log("Saving blacklist");
+    this.robot.brain.set("blacklist", this.blacklist);
+    this.robot.brain.save();
+  }
+
+  loadBlacklist() {
+    this.blacklist = this.robot.brain.get("blacklist");
+    if (this.blacklist) console.log("Blacklist loaded successfully.");
+    else console.warn("Failed to load blacklist.");
+  }
+
+  addToBlacklist(item) {
+    this.blacklist.push(item);
+    this.saveBlacklist();
+  }
+
+  removeFromBlacklist(item) {
+    let index = this.blacklist.indexOf(item);
+    if (index !== -1) {
+      this.blacklist.splice(index, 1);
+      this.saveBlacklist();
+      console.log(`Successfully removed ${item} from blacklist.`);
+    } else {
+      console.warn(`Unable to find ${item} in blacklist!`);
+    }
+  }
+
+  getUserByName(_name) {
+    let name = _name.trim();
+    if (name[0] == "@") {
+      name = name.slice(1);
+    }
+    let user = this.robot.brain.userForName(name);
+    if (!user.user_id) return null;
+    else return user;
+  }
+
+  getUserById(id) {
+    let user = this.robot.brain.userForId(id);
+    if (!user.user_id) return null;
+    else return user;
+  }
+
+  respondToID(res, target) {
+    // Get ID command
+    console.log(`Looking for user ID by name: ${target}`);
+    const found = this.getUserByName(target);
+
+    if (found) {
+      const id = found.user_id;
+      console.log(`Found ID ${id} by name ${target}`);
+      res.send(`${target}: ${id}`);
+    } else {
+      res.send(`Could not find a user with the name ${target}`);
+    }
+  }
+
+  respondToName(res, target) {
+    console.log(`Looking for user name by ID: ${target}`);
+    const found = this.getUserById(target);
+
+    if (found) {
+      const name = found.name;
+      console.log(`Found name ${name} by ID ${target}`);
+      res.send(`${target}: ${name}`);
+    } else {
+      res.send(`Could not find a user with the ID ${target}`);
+    }
+  }
+
+  respondToViewBlacklist(res) {
+    // Raw blacklist
+    if (res.match[1]) return res.send(JSON.stringify(this.blacklist));
+
+    const blacklistNames = this.blacklist.map(
+      user => this.getUserById(user).name
+    );
+
+    if (blacklistNames.length > 0) return res.send(blacklistNames.join(", "));
+    else return res.send("There are currently no users blacklisted.");
+  }
+
+  respondToBlacklist(res, target) {
+    const user = this.getUserByName(target);
+
+    if (!user) return res.send(`Could not find a user with the name ${target}`);
+
+    console.log(`Blacklisting ${target}, ${user.user_id}`);
+    this.addToBlacklist(user.user_id);
+    res.send(`Blacklisted ${target} successfully.`);
+  }
+
+  respondToWhitelist(res, target) {
+    const user = this.getUserByName(target);
+
+    if (!user) return res.send(`Could not find a user with the name ${target}`);
+
+    console.log(`Whitelisting ${target}, ${user.user_id}`);
+    this.removeFromBlacklist(user.user_id);
+    res.send(`Whitelisted ${target} successfully`);
+  }
+
+  respondToAtAll(res) {
+    // Select the longer of the two options.
+    // TODO: Maybe combine them?
+    const text =
+      res.match[0].length > res.match[1].length ? res.match[0] : res.match[1];
+
+    // Default text if not long enough
+    // TODO: Is this necessary? Can't we tag everyone on a 1 character message?
+    // if (text.length < users.length)
+    //   text = "Please check the GroupMe, everyone.";
+
+    // The message for use in GroupMe API
+    const message = {
+      text,
+      bot_id,
+      attachments: [{ loci: [], type: "mentions", user_ids: [] }]
+    };
+
+    // Add "mention" for each user
+    const users = this.robot.brain.users();
+    Object.keys(users).map((userID, index) => {
+      // Skip blacklisted users
+      if (this.blacklist.indexOf(userID) !== -1) return;
+
+      // TODO: Would [i, i] work?
+      message.attachments[0].loci.push([index, index + 1]);
+      message.attachments[0].user_ids.push(userID);
+    });
+
+    // Send the request
+    const json = JSON.stringify(message);
+    const groupmeAPIOptions = {
+      agent: false,
+      host: "api.groupme.com",
+      path: "/v3/bots/post",
+      port: 443,
+      method: "POST",
+      headers: {
+        "Content-Length": json.length,
+        "Content-Type": "application/json",
+        "X-Access-Token": token
+      }
+    };
+    const req = https.request(groupmeAPIOptions, response => {
+      let data = "";
+      response.on("data", chunk => (data += chunk));
+      response.on("end", () =>
+        console.log(`[GROUPME RESPONSE] ${response.statusCode} ${data}`)
+      );
+    });
+    req.end(json);
+  }
+
+  // Defines the main logic of the bot
+  run() {
+    // Register listeners with hubot
+    this.robot.hear(/get id (.+)/i, res => this.respondToID(res, res.match[1]));
+    this.robot.hear(/get name (.+)/i, res =>
+      this.respondToName(res, res.match[1])
+    );
+    this.robot.hear(/view( raw)* blacklist/i, res =>
+      this.respondToViewBlacklist(res)
+    );
+    this.robot.hear(/blacklist (.+)/i, res =>
+      this.respondToBlacklist(res, res.match[1])
+    );
+    this.robot.hear(/whitelist (.+)/i, res =>
+      this.respondToWhitelist(res, res.match[1])
+    );
+
+    // Mention @all command
+    this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
+  }
 }
 
-// Start the server
-app.listen(port, () => console.log(`Server running on port ${port}`));
+module.exports = robot => {
+  const bot = new AllBot(robot);
+  bot.run();
+};
