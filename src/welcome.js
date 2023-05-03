@@ -128,6 +128,39 @@ class AllBot {
     res.send(`Whitelisted ${target} successfully`);
   }
 
+  sendWelcomeMessage(newUserName) {
+    const message = `Welcome to the group, ${newUserName}!`;
+    const data = JSON.stringify({
+      bot_id: bot_id,
+      text: message,
+    });
+
+    const options = {
+      hostname: 'api.groupme.com',
+      path: '/v3/bots/post',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length,
+        'X-Access-Token': token,
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      console.log(`statusCode: ${res.statusCode}`);
+      res.on('data', (d) => {
+        process.stdout.write(d);
+      });
+    });
+
+    req.on('error', (error) => {
+      console.error(error);
+    });
+
+    req.write(data);
+    req.end();
+  }
+  
   respondToAtAll(res) {
     // Select the longer of the two options.
     // TODO: Maybe combine them?
@@ -200,6 +233,13 @@ class AllBot {
 
     // Mention @all command
     this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
+    // Send a welcome message to new users
+    this.robot.hear(/.+/, (res) => {
+      if (res.message.new_user) {
+        const newUserName = res.message.new_user.name;
+        this.sendWelcomeMessage(newUserName);
+      }
+    });
   }
 }
 
