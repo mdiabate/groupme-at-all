@@ -208,11 +208,10 @@ class AllBot {
     );
 
     // Send a welcome message to new users
-    this.robot.hear(/.+/, (res) => {
-      if (res.message.new_user) {
+    this.robot.hear(/.+/, (res) => 
+      if (res.message.new_user) 
         const newUserName = res.message.new_user.name;
         this.sendWelcomeMessage(newUserName);
-      }
     
     // Mention @all command
     this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
