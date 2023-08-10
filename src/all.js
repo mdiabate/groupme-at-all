@@ -1,20 +1,5 @@
 const https = require("https");
 
-const room_id = process.env.HUBOT_GROUPME_ROOM_ID;
-const bot_id = process.env.HUBOT_GROUPME_BOT_ID;
-const token = process.env.HUBOT_GROUPME_TOKEN;
-
-if (!room_id || !bot_id || !token) {
-  console.error(
-    `@all ERROR: Unable to read full environment.
-    Did you configure environment variables correctly?
-    - HUBOT_GROUPME_ROOM_ID
-    - HUBOT_GROUPME_BOT_ID
-    - HUBOT_GROUPME_TOKEN`
-  );
-  process.exit(1);
-}
-
 class WelcomeBot {
   constructor(robot) {
     this.robot = robot;
@@ -76,7 +61,7 @@ class WelcomeBot {
 
     const message = {
       text: welcomeMessage,
-      bot_id
+      bot_id: process.env.HUBOT_GROUPME_BOT_ID
     };
 
     const json = JSON.stringify(message);
@@ -89,7 +74,7 @@ class WelcomeBot {
       headers: {
         "Content-Length": json.length,
         "Content-Type": "application/json",
-        "X-Access-Token": token
+        "X-Access-Token": process.env.HUBOT_GROUPME_TOKEN
       }
     };
     const req = https.request(groupmeAPIOptions, response => {
@@ -123,7 +108,7 @@ class WelcomeBot {
 
     this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
     
-    this.robot.hear(/welcome/i, res => this.respondToWelcome(res)); // New listener for welcome command
+    this.robot.hear(/welcome/i, this.respondToWelcome.bind(this)); // Use the bound method here
   }
 }
 
