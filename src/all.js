@@ -211,6 +211,7 @@ class AllBot {
 
     // Mention @all command
     this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
+    this.robot.hear(/@schedule/i, (res) => this.respondToSchedule(res));
   }
 }
 
