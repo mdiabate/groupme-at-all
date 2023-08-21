@@ -146,16 +146,7 @@ class AllBot {
       attachments: [{ loci: [], type: "mentions", user_ids: [] }]
     };
 
-  respondToSchedule(res) {
-    // Implement your schedule fetching logic here
-    const schedule = "Here's the schedule for today:\n1. Event A\n2. Event B\n3. Event C";
-  
-    const message = {
-      text: schedule,
-      bot_id,
-      attachments: [{ loci: [], type: "mentions", user_ids: [] }]
-    };
-
+    
 
     // Add "mention" for each user
     const users = this.robot.brain.users();
@@ -185,6 +176,46 @@ class AllBot {
     const req = https.request(groupmeAPIOptions, response => {
       let data = "";
       response.on("data", chunk => (data += chunk));
+      response.on("end", () =>
+        console.log(`[GROUPME RESPONSE] ${response.statusCode} ${data}`)
+      );
+    });
+    req.end(json);
+  }
+
+  respondToSchedule(res) {
+    // Implement your schedule fetching logic here
+    const schedule = "Here's the schedule for today:\n1. Event A\n2. Event B\n3. Event C";
+
+    const message = {
+      text: schedule,
+      bot_id,
+      attachments: [{ loci: [], type: "mentions", user_ids: [] }]
+    };
+
+    const users = this.robot.brain.users();
+    Object.keys(users).forEach((userID, index) => {
+      if (this.blacklist.indexOf(userID) !== -1) return;
+      message.attachments[0].loci.push([index, index + 1]);
+      message.attachments[0].user_ids.push(userID);
+    });
+
+    const json = JSON.stringify(message);
+    const groupmeAPIOptions = {
+      agent: false,
+      host: "api.groupme.com",
+      path: "/v3/bots/post",
+      port: 443,
+      method: "POST",
+      headers: {
+        "Content-Length": json.length,
+        "Content-Type": "application/json",
+        "X-Access-Token": token,
+      },
+    };
+    const req = https.request(groupmeAPIOptions, (response) => {
+      let data = "";
+      response.on("data", (chunk) => (data += chunk));
       response.on("end", () =>
         console.log(`[GROUPME RESPONSE] ${response.statusCode} ${data}`)
       );
