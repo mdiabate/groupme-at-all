@@ -144,8 +144,8 @@ class AllBot {
       "@form: Provides a link to the flight form.",
       "@lookbook: Shares the lookbook URL.",
     ];
-
-    this.sendGroupMessage(helpMessage.join("\n"));
+  
+    this.sendMessage(helpMessage.join("\n"));
   }
 
   sendGroupMessageWithMentions(text) {
