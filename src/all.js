@@ -36,7 +36,7 @@ class GroupMeBot {
     const message = {
       text,
       attachments,
-        this.messageDefaults,
+      this.messageDefaults,
     };
 
     const json = JSON.stringify(message);
