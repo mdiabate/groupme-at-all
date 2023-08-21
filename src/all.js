@@ -334,6 +334,45 @@ class AllBot {
     });
     req.end(json);
   }
+
+    respondToLookbook(res) {
+    const lookbookUrl = "https://drive.google.com/file/d/1WVCka6T2KG1seeskCAvYvZKrOFwusPmG/view";
+
+    const message = {
+      text: `Here's the lookbook URL: ${lookbookUrl}`,
+      bot_id,
+      attachments: [{ loci: [], type: 'mentions', user_ids: [] }],
+    };
+
+    const users = this.robot.brain.users();
+    Object.keys(users).forEach((userID, index) => {
+      if (this.blacklist.indexOf(userID) !== -1) return;
+      message.attachments[0].loci.push([index, index + 1]);
+      message.attachments[0].user_ids.push(userID);
+    });
+
+    const json = JSON.stringify(message);
+    const groupmeAPIOptions = {
+      agent: false,
+      host: 'api.groupme.com',
+      path: '/v3/bots/post',
+      port: 443,
+      method: 'POST',
+      headers: {
+        'Content-Length': json.length,
+        'Content-Type': 'application/json',
+        'X-Access-Token': token,
+      },
+    };
+    const req = https.request(groupmeAPIOptions, (response) => {
+      let data = '';
+      response.on('data', (chunk) => (data += chunk));
+      response.on('end', () =>
+        console.log(`[GROUPME RESPONSE] ${response.statusCode} ${data}`)
+      );
+    });
+    req.end(json);
+  }
   
   // Defines the main logic of the bot
   run() {
@@ -358,6 +397,7 @@ class AllBot {
     this.robot.hear(/@today/i, (res) => this.respondToTodaySchedule(res));
     this.robot.hear(/@form/i, (res) => this.respondToTravelForm(res));
     this.robot.hear(/@hotel/i, (res) => this.respondToHotel(res));
+    this.robot.hear(/@lookbook/i, (res) => this.respondToLookbook(res));
   }
 }
 
