@@ -146,6 +146,17 @@ class AllBot {
       attachments: [{ loci: [], type: "mentions", user_ids: [] }]
     };
 
+  respondToSchedule(res) {
+    // Implement your schedule fetching logic here
+    const schedule = "Here's the schedule for today:\n1. Event A\n2. Event B\n3. Event C";
+  
+    const message = {
+      text: schedule,
+      bot_id,
+      attachments: [{ loci: [], type: "mentions", user_ids: [] }]
+    };
+
+
     // Add "mention" for each user
     const users = this.robot.brain.users();
     Object.keys(users).map((userID, index) => {
@@ -156,17 +167,7 @@ class AllBot {
       message.attachments[0].loci.push([index, index + 1]);
       message.attachments[0].user_ids.push(userID);
     });
-    
-    respondToSchedule(res) {
-    // Implement your schedule fetching logic here
-    const schedule = "Here's the schedule for today:\n1. Event A\n2. Event B\n3. Event C";
 
-    const message = {
-      text: schedule,
-      bot_id,
-      attachments: [{ loci: [], type: "mentions", user_ids: [] }]
-    };
-      
     // Send the request
     const json = JSON.stringify(message);
     const groupmeAPIOptions = {
@@ -191,7 +192,6 @@ class AllBot {
     req.end(json);
   }
 
-    
   // Defines the main logic of the bot
   run() {
     // Register listeners with hubot
@@ -211,7 +211,6 @@ class AllBot {
 
     // Mention @all command
     this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
-    this.robot.hear(/@schedule/i, (res) => this.respondToSchedule(res));
   }
 }
 
