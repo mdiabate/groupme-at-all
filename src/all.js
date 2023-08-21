@@ -27,7 +27,7 @@ class AllBot {
       { regex: /@form/i, handler: this.respondToTravelForm },
       { regex: /@hotel/i, handler: this.respondToHotel },
       { regex: /@lookbook/i, handler: this.respondToLookbook },
-      { regex: /@help/i, handler: this.respondToHelp },
+      { regex: /@commands/i, handler: this.respondToHelp },
     ];
   }
 
