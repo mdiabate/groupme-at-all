@@ -185,7 +185,7 @@ class AllBot {
 
   respondToSchedule(res) {
     // Implement your schedule fetching logic here
-    const schedule = "Here's the schedule for today:\n1. Event A\n2. Event B\n3. Event C";
+    const schedule = "Here's the schedule for the trip:\n1. Welcome Mixer and Night Swim \n2. DG Wine Tour \n3. Opulence Dinner \n4. Sunset Boatride ";
 
     const message = {
       text: schedule,
