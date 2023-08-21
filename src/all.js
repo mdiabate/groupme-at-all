@@ -1,5 +1,6 @@
 const https = require("https");
 
+const room_id = process.env.HUBOT_GROUPME_ROOM_ID;
 const bot_id = process.env.HUBOT_GROUPME_BOT_ID;
 const token = process.env.HUBOT_GROUPME_TOKEN;
 
@@ -7,6 +8,7 @@ if (!bot_id || !token) {
   console.error(
     `@all ERROR: Unable to read full environment.
     Did you configure environment variables correctly?
+    - HUBOT_GROUPME_ROOM_ID
     - HUBOT_GROUPME_BOT_ID
     - HUBOT_GROUPME_TOKEN`
   );
@@ -25,6 +27,7 @@ class AllBot {
       { regex: /@form/i, handler: this.respondToTravelForm },
       { regex: /@hotel/i, handler: this.respondToHotel },
       { regex: /@lookbook/i, handler: this.respondToLookbook },
+      { regex: /@help/i, handler: this.respondToHelp },
     ];
   }
 
@@ -108,8 +111,8 @@ class AllBot {
   respondToTodaySchedule(res) {
     const todayFormatted = new Date().toISOString().split("T")[0];
     const schedules = {
-      '2023-08-20': 'Here is the schedule for Day 1:\n1. Event A\n2. Event B\n3. Event C',
-      '2023-08-05': 'Here is the schedule for Day 2:\n1. Event X\n2. Event Y\n3. Event Z',
+      '2023-08-21': 'Here is the schedule for Day 1:\n1. Event A\n2. Event B\n3. Event C',
+      '2023-08-22': 'Here is the schedule for Day 2:\n1. Event X\n2. Event Y\n3. Event Z',
     };
     const schedule = schedules[todayFormatted] || 'There is no schedule available for today.';
 
@@ -129,6 +132,20 @@ class AllBot {
   respondToLookbook(res) {
     const lookbookUrl = "https://drive.google.com/file/d/1WVCka6T2KG1seeskCAvYvZKrOFwusPmG/view";
     this.sendGroupMessageWithMentions(`Here's the lookbook URL: ${lookbookUrl}`);
+  }
+
+  respondToHelp(res) {
+    const helpMessage = [
+      "Available commands:",
+      "@all: Mentions all users in the group.",
+      "@hotel: Provides information about the hotel.",
+      "@schedule: Displays the trip schedule.",
+      "@today: Displays the schedule for today.",
+      "@form: Provides a link to the flight form.",
+      "@lookbook: Shares the lookbook URL.",
+    ];
+
+    this.sendGroupMessage(helpMessage.join("\n"));
   }
 
   sendGroupMessageWithMentions(text) {
