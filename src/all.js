@@ -223,6 +223,54 @@ class AllBot {
     req.end(json);
   }
 
+    respondToTodaySchedule(res) {
+    const today = new Date();
+    const todayFormatted = today.toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+
+    // Example schedule data for multiple days
+    const schedules = {
+      '2023-08-21': 'Here is the schedule for Day 1:\n1. Event A\n2. Event B\n3. Event C',
+      '2023-08-05': 'Here is the schedule for Day 2:\n1. Event X\n2. Event Y\n3. Event Z',
+      // Add more dates and schedules as needed
+    };
+
+    const schedule = schedules[todayFormatted] || 'There is no schedule available for today.';
+
+    const message = {
+      text: schedule,
+      bot_id,
+      attachments: [{ loci: [], type: 'mentions', user_ids: [] }],
+    };
+
+    const users = this.robot.brain.users();
+    Object.keys(users).forEach((userID, index) => {
+      if (this.blacklist.indexOf(userID) !== -1) return;
+      message.attachments[0].loci.push([index, index + 1]);
+      message.attachments[0].user_ids.push(userID);
+    });
+
+    const json = JSON.stringify(message);
+    const groupmeAPIOptions = {
+      agent: false,
+      host: 'api.groupme.com',
+      path: '/v3/bots/post',
+      port: 443,
+      method: 'POST',
+      headers: {
+        'Content-Length': json.length,
+        'Content-Type': 'application/json',
+        'X-Access-Token': token,
+      },
+    };
+    const req = https.request(groupmeAPIOptions, (response) => {
+      let data = '';
+      response.on('data', (chunk) => (data += chunk));
+      response.on('end', () =>
+        console.log(`[GROUPME RESPONSE] ${response.statusCode} ${data}`)
+      );
+    });
+    req.end(json);
+  }
   // Defines the main logic of the bot
   run() {
     // Register listeners with hubot
@@ -243,6 +291,7 @@ class AllBot {
     // Mention @all command
     this.robot.hear(/(.*)@all(.*)/i, res => this.respondToAtAll(res));
     this.robot.hear(/@schedule/i, (res) => this.respondToSchedule(res));
+    this.robot.hear(/@todayschedule/i, (res) => this.respondToTodaySchedule(res));
   }
 }
 
