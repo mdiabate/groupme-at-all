@@ -152,7 +152,7 @@ class AllBot {
     const message = {
       text,
       bot_id,
-      attachments: [{ loci: [], type: "mentions", user_ids: [] }],
+      //attachments: [{ loci: [], type: "direct_message", user_ids: [] }],
     };
 
     const users = this.robot.brain.users();
