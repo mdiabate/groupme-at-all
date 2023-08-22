@@ -155,11 +155,11 @@ class AllBot {
       //attachments: [{ loci: [], type: "direct_message", user_ids: [] }],
     };
 
-    const users = this.robot.brain.users();
-    Object.keys(users).forEach((userID, index) => {
-      message.attachments[0].loci.push([index, index + 1]);
-      message.attachments[0].user_ids.push(userID);
-    });
+    //const users = this.robot.brain.users();
+    //Object.keys(users).forEach((userID, index) => {
+      //message.attachments[0].loci.push([index, index + 1]);
+      //message.attachments[0].user_ids.push(userID);
+   // });
 
     this.sendMessage(message);
   }
