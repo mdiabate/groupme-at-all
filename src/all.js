@@ -138,7 +138,7 @@ class AllBot {
 
     // Check if the user is an admin or owner
     if (!this.isAdminOrOwner(userId)) {
-      res.send("Sorry, you don't have permission to use @all.");
+      res.send("Sorry, you don't have permission the mention everyone.");
       return;
     }
     // Select the longer of the two options.
