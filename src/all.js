@@ -128,7 +128,19 @@ class AllBot {
     res.send(`Whitelisted ${target} successfully`);
   }
 
+  isAdminOrOwner(userId) {
+    const user = this.robot.brain.userForId(userId);
+    return user && (user.is_admin || user.is_owner);
+  }
+
   respondToAtAll(res) {
+    const userId = res.message.user.id;
+
+    // Check if the user is an admin or owner
+    if (!this.isAdminOrOwner(userId)) {
+      res.send("Sorry, you don't have permission to use @all.");
+      return;
+    }
     // Select the longer of the two options.
     // TODO: Maybe combine them?
     const text =
