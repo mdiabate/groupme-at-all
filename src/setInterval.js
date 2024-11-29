@@ -10,8 +10,8 @@ var http = require("http");
     //http.get("http://thawing-beach-87774.herokuapp.com"); -- HAYWIRE
 //}, 1800000); // every 15 minutes (300000)
 
-setInterval(function(){http.get("https://discoverchidi-b117b03ddb85.herokuapp.com/")},180000);
-//setInterval(function(){http.get("https://dg-grenada-23-9f9cc36f739e.herokuapp.com/")},180000);
+setInterval(function(){http.get("https://dg-accra24-6b105dfd65b5.herokuapp.com/")},180000);
+setInterval(function(){http.get("https://dg-southafrica24-1da79fcb0141.herokuapp.com/")},180000);
 //setInterval(function(){http.get("dginportugal-b23a0ac48105.herokuapp.com/")},180000);
 //setInterval(function(){http.get("http://lasgiditwo.herokuapp.com/")}, 1800000);
 //setInterval(function(){http.get("http://dgcartagena2021.herokuapp.com/")}, 1800000);
