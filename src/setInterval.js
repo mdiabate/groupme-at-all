@@ -11,8 +11,8 @@ var http = require("http");
 //}, 1800000); // every 15 minutes (300000)
 
 setInterval(function(){http.get("https://dg-dr2025-e0001abbaa97.herokuapp.com/")},180000);
-setInterval(function(){http.get("https://dg-accra24-6b105dfd65b5.herokuapp.com/")},180000);
-setInterval(function(){http.get("https://dg-southafrica24-1da79fcb0141.herokuapp.com/")},180000);
+//setInterval(function(){http.get("https://dg-accra24-6b105dfd65b5.herokuapp.com/")},180000);
+//setInterval(function(){http.get("https://dg-southafrica24-1da79fcb0141.herokuapp.com/")},180000);
 //setInterval(function(){http.get("dginportugal-b23a0ac48105.herokuapp.com/")},180000);
 //setInterval(function(){http.get("http://lasgiditwo.herokuapp.com/")}, 1800000);
 //setInterval(function(){http.get("http://dgcartagena2021.herokuapp.com/")}, 1800000);
